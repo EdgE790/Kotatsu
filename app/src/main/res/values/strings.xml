@@ -146,4 +146,5 @@
 	<string name="rotate_screen">Rotate screen</string>
 	<string name="update">Update</string>
 	<string name="feed_will_update_soon">Feed update will start soon</string>
+	<string name="continue_reading">Continue reading</string>
 </resources>

@@ -6,11 +6,16 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.view.ActionMode
 import androidx.core.content.ContextCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.net.toFile
+import androidx.core.view.OnApplyWindowInsetsListener
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -35,7 +40,7 @@ import org.koitharu.kotatsu.utils.ext.getDisplayMessage
 import org.koitharu.kotatsu.utils.ext.getThemeColor
 
 class MangaDetailsActivity : BaseActivity(), MangaDetailsView,
-	TabLayoutMediator.TabConfigurationStrategy {
+	TabLayoutMediator.TabConfigurationStrategy, OnApplyWindowInsetsListener {
 
 	private val presenter by moxyPresenter {
 		MangaDetailsPresenter.getInstance(hashCode())
@@ -48,6 +53,7 @@ class MangaDetailsActivity : BaseActivity(), MangaDetailsView,
 		setContentView(R.layout.activity_details)
 		supportActionBar?.setDisplayHomeAsUpEnabled(true)
 		pager.adapter = MangaDetailsAdapter(this)
+		ViewCompat.setOnApplyWindowInsetsListener(coordinator, this)
 		TabLayoutMediator(tabs, pager, this).attach()
 		if (savedInstanceState?.containsKey(MvpDelegate.MOXY_DELEGATE_TAGS_KEY) != true) {
 			intent?.getParcelableExtra<Manga>(EXTRA_MANGA)?.let {
@@ -56,6 +62,13 @@ class MangaDetailsActivity : BaseActivity(), MangaDetailsView,
 				presenter.findMangaById(it)
 			} ?: finishAfterTransition()
 		}
+	}
+
+	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+		with(insets.getInsets(WindowInsetsCompat.Type.systemBars())) {
+			toolbar.updatePadding(top = top)
+		}
+		return insets
 	}
 
 	override fun onMangaUpdated(manga: Manga) {
@@ -206,7 +219,7 @@ class MangaDetailsActivity : BaseActivity(), MangaDetailsView,
 	override fun onSupportActionModeFinished(mode: ActionMode) {
 		super.onSupportActionModeFinished(mode)
 		pager.isUserInputEnabled = true
-		window?.statusBarColor = getThemeColor(androidx.appcompat.R.attr.colorPrimaryDark)
+		window?.statusBarColor = getThemeColor(android.R.attr.statusBarColor)
 	}
 
 	companion object {

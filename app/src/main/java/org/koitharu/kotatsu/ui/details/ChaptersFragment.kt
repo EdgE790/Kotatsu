@@ -7,7 +7,7 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
-import androidx.core.view.isVisible
+import androidx.core.view.*
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -22,7 +22,7 @@ import org.koitharu.kotatsu.ui.reader.ReaderActivity
 import org.koitharu.kotatsu.utils.ext.resolveDp
 
 class ChaptersFragment : BaseFragment(R.layout.fragment_chapters), MangaDetailsView,
-	OnRecyclerItemClickListener<MangaChapter>, ActionMode.Callback {
+	OnRecyclerItemClickListener<MangaChapter>, ActionMode.Callback, OnApplyWindowInsetsListener {
 
 	@Suppress("unused")
 	private val presenter by moxyPresenter {
@@ -36,6 +36,7 @@ class ChaptersFragment : BaseFragment(R.layout.fragment_chapters), MangaDetailsV
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
+		ViewCompat.setOnApplyWindowInsetsListener(view, this)
 		adapter = ChaptersAdapter(this)
 		recyclerView_chapters.addItemDecoration(
 			DividerItemDecoration(
@@ -45,6 +46,13 @@ class ChaptersFragment : BaseFragment(R.layout.fragment_chapters), MangaDetailsV
 		)
 		recyclerView_chapters.setHasFixedSize(true)
 		recyclerView_chapters.adapter = adapter
+	}
+
+	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+		with(insets.getInsets(WindowInsetsCompat.Type.systemBars())) {
+			recyclerView_chapters.updatePadding(left = left, right = right, bottom = bottom)
+		}
+		return WindowInsetsCompat.CONSUMED
 	}
 
 	override fun onMangaUpdated(manga: Manga) {

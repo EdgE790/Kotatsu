@@ -1,10 +1,11 @@
 package org.koitharu.kotatsu.ui.details
 
+import android.os.Bundle
 import android.text.Spanned
 import android.view.View
 import androidx.core.net.toUri
 import androidx.core.text.parseAsHtml
-import androidx.core.view.isVisible
+import androidx.core.view.*
 import androidx.lifecycle.lifecycleScope
 import coil.load
 import com.google.android.material.chip.Chip
@@ -29,8 +30,7 @@ import org.koitharu.kotatsu.utils.ext.toFileOrNull
 import kotlin.math.roundToInt
 
 class MangaDetailsFragment : BaseFragment(R.layout.fragment_details), MangaDetailsView,
-	View.OnClickListener,
-	View.OnLongClickListener {
+	View.OnClickListener, View.OnLongClickListener, OnApplyWindowInsetsListener {
 
 	@Suppress("unused")
 	private val presenter by moxyPresenter {
@@ -39,6 +39,18 @@ class MangaDetailsFragment : BaseFragment(R.layout.fragment_details), MangaDetai
 
 	private var manga: Manga? = null
 	private var history: MangaHistory? = null
+
+	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+		super.onViewCreated(view, savedInstanceState)
+		ViewCompat.setOnApplyWindowInsetsListener(view, this)
+	}
+
+	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+		with(insets.getInsets(WindowInsetsCompat.Type.systemBars())) {
+			textView_description.updatePadding(bottom = textView_description.paddingTop + top)
+		}
+		return WindowInsetsCompat.CONSUMED
+	}
 
 	override fun onMangaUpdated(manga: Manga) {
 		this.manga = manga
@@ -138,9 +150,11 @@ class MangaDetailsFragment : BaseFragment(R.layout.fragment_details), MangaDetai
 			}
 			v is Chip -> {
 				when (val tag = v.tag) {
-					is String -> MangaSearchSheet.show(activity?.supportFragmentManager
-						?: childFragmentManager,
-						manga?.source ?: return, tag)
+					is String -> MangaSearchSheet.show(
+						activity?.supportFragmentManager
+							?: childFragmentManager,
+						manga?.source ?: return, tag
+					)
 				}
 			}
 		}

@@ -145,4 +145,5 @@
 	<string name="rotate_screen">Повернуть экран</string>
 	<string name="update">Обновить</string>
 	<string name="feed_will_update_soon">Обновление скоро начнётся</string>
+	<string name="continue_reading">Продолжить чтение</string>
 </resources>

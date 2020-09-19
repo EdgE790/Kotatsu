@@ -9,8 +9,10 @@ import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.core.view.isVisible
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.*
 import androidx.fragment.app.Fragment
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.google.android.material.navigation.NavigationView
@@ -40,7 +42,7 @@ import org.koitharu.kotatsu.utils.ext.resolveDp
 import java.io.Closeable
 
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener,
-	SharedPreferences.OnSharedPreferenceChangeListener, MainView {
+	SharedPreferences.OnSharedPreferenceChangeListener, MainView, OnApplyWindowInsetsListener {
 
 	private val presenter by moxyPresenter(factory = ::MainPresenter)
 
@@ -62,9 +64,11 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
 		fab.imageTintList = ColorStateList.valueOf(Color.WHITE)
 		fab.isVisible = true
+		ViewCompat.setTooltipText(fab, getString(R.string.continue_reading))
 		fab.setOnClickListener {
 			presenter.openLastReader()
 		}
+		ViewCompat.setOnApplyWindowInsetsListener(coordinator, this)
 
 		supportFragmentManager.findFragmentById(R.id.container)?.let {
 			fab.isVisible = it is HistoryListFragment
@@ -79,6 +83,16 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 		closeable?.close()
 		settings.unsubscribe(this)
 		super.onDestroy()
+	}
+
+	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+		fab.updateLayoutParams<CoordinatorLayout.LayoutParams> {
+			bottomMargin = insets.getInsets(WindowInsetsCompat.Type.tappableElement()).bottom + marginEnd
+		}
+		toolbar.updatePadding(
+			top = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top
+		)
+		return insets
 	}
 
 	override fun onPostCreate(savedInstanceState: Bundle?) {

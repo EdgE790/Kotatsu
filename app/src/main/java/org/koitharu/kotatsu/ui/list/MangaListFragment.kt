@@ -5,9 +5,7 @@ import android.os.Bundle
 import android.view.*
 import androidx.annotation.CallSuper
 import androidx.appcompat.widget.PopupMenu
-import androidx.core.view.GravityCompat
-import androidx.core.view.isGone
-import androidx.core.view.isVisible
+import androidx.core.view.*
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.*
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -38,7 +36,8 @@ import org.koitharu.kotatsu.utils.ext.*
 abstract class MangaListFragment<E> : BaseFragment(R.layout.fragment_list),
 	MangaListView<E>, PaginationScrollListener.Callback, OnRecyclerItemClickListener<Manga>,
 	SharedPreferences.OnSharedPreferenceChangeListener, OnFilterChangedListener,
-	SectionItemDecoration.Callback, SwipeRefreshLayout.OnRefreshListener {
+	SectionItemDecoration.Callback, SwipeRefreshLayout.OnRefreshListener,
+	OnApplyWindowInsetsListener {
 
 	private val settings by inject<AppSettings>()
 	private val adapterConfig = ConcatAdapter.Config.Builder()
@@ -48,7 +47,7 @@ abstract class MangaListFragment<E> : BaseFragment(R.layout.fragment_list),
 
 	private var adapter: MangaListAdapter? = null
 	private var progressAdapter: ProgressBarAdapter? = null
-	private var paginationListener : PaginationScrollListener? = null
+	private var paginationListener: PaginationScrollListener? = null
 	protected var isSwipeRefreshEnabled = true
 
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,6 +57,7 @@ abstract class MangaListFragment<E> : BaseFragment(R.layout.fragment_list),
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
+		ViewCompat.setOnApplyWindowInsetsListener(view, this)
 		drawer?.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
 		adapter = MangaListAdapter(this)
 		progressAdapter = ProgressBarAdapter()
@@ -73,6 +73,18 @@ abstract class MangaListFragment<E> : BaseFragment(R.layout.fragment_list),
 		if (savedInstanceState?.containsKey(MvpDelegate.MOXY_DELEGATE_TAGS_KEY) != true) {
 			onRequestMoreItems(0)
 		}
+	}
+
+	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+		with(insets.getInsets(WindowInsetsCompat.Type.systemBars())) {
+			recyclerView.updatePadding(left = left, right = right, bottom = bottom)
+			recyclerView_filter.updatePadding(
+				bottom = bottom,
+				right = if (v.layoutDirection == View.LAYOUT_DIRECTION_LTR) right else 0,
+				left = if (v.layoutDirection == View.LAYOUT_DIRECTION_RTL) left else 0,
+			)
+		}
+		return WindowInsetsCompat.CONSUMED
 	}
 
 	override fun onDestroyView() {

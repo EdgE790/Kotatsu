@@ -4,11 +4,7 @@
 		<item name="windowActionModeOverlay">true</item>
 		<item name="actionModeCloseDrawable">@drawable/ic_cross</item>
 		<item name="actionModeStyle">@style/AppActionMode</item>
-		<item name="android:navigationBarColor">#B3FFFFFF</item>
-	</style>
-	<style name="AppTheme" parent="BaseAppTheme">
-		<item name="colorPrimary">@color/blue_primary</item>
-		<item name="colorPrimaryDark">@color/blue_primary_dark</item>
-		<item name="colorAccent">@color/red_accent</item>
+		<item name="android:navigationBarColor">@android:color/transparent</item>
+		<item name="android:statusBarColor">@android:color/transparent</item>
 	</style>
 </resources>
